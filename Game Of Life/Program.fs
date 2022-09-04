@@ -8,18 +8,27 @@ let rand = System.Random()
 
 [<EntryPoint>]
 let main argv =
-    let width, height = 32, 32
+    async {
+        let width, height = 32, 32
 
-    let exampleGrid =
-        [|
-            for w in 0..width do
-                Array.init height (fun _ ->
-                    rand.Next() % 2
-                    |> Convert.ToByte
-                    |> EnumOfValue<byte, CellState>)
-        |]
-        |> Grid
+        let mutable grid =
+            [|
+                for w in 0..width do
+                    Array.init height (fun _ ->
+                        rand.Next() % 2
+                        |> Convert.ToByte
+                        |> EnumOfValue<byte, CellState>)
+            |]
+            |> Grid
 
-    printfn "%s" <| exampleGrid.ToString()
-    Console.Read() |> ignore
+        while true do
+            Console.Clear()
+            printfn "%s" <| printGrid Console.printCell grid
+
+            grid <- evolveGrid grid
+            do! Async.Sleep 250
+
+    }
+    |> Async.RunSynchronously
+
     0

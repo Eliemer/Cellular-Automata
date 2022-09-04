@@ -9,10 +9,10 @@ let printCell (cell : CellState) =
     | CellState.Dead -> " "
     | _ -> ""
 
-let printRow (printCell : CellState -> string) (row : CellState []) =
-    row |> Seq.map printCell |> String.concat ""
+let printRow (cellPrinter : CellState -> string) (row : CellState []) =
+    row |> Seq.map cellPrinter |> String.concat ""
 
 let printGrid (cellPrinter : CellState -> string) (Grid grid) =
     grid
-    |> Seq.map (printRow printCell)
+    |> Seq.map (printRow cellPrinter)
     |> String.concat "\n"

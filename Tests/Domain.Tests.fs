@@ -2,7 +2,7 @@
 
 open Expecto
 open Domain
-open Console.Utils
+open Console
 
 [<Tests>]
 let domainTests =
@@ -26,6 +26,24 @@ let domainTests =
                 | _ ->
                     Expect.equal wasAlive CellState.Dead "Alive Cell without 2 or 3 neighbours will die"
                     Expect.equal wasDead CellState.Dead "Dead cell without 3 neighbours should remain dead"
+
+            test "Grid Evolution" {
+                let current =
+                    [|
+                        [| CellState.Alive; CellState.Dead |]
+                        [| CellState.Dead; CellState.Dead |]
+                    |]
+                    |> Grid
+
+                let next =
+                    [|
+                        [| CellState.Dead; CellState.Dead |]
+                        [| CellState.Dead; CellState.Dead |]
+                    |]
+                    |> Grid
+
+                Expect.equal next (evolveGrid current) "A single cell should die out"
+            }
 
         ]
 

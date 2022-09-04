@@ -1,5 +1,7 @@
 module Domain
 
+open Shared
+
 type CellState =
     | Dead = 0uy
     | Alive = 1uy
@@ -28,7 +30,7 @@ let getAdjacent ((i, j) : int * int) (Grid grid) =
         (i + 1, j)
         (i + 1, j + 1)
     ]
-    |> Seq.map (fun (i, j) -> (i % h), (j % w))
+    |> Seq.map (fun (i, j) -> (i %! h), (j %! w))
     |> Seq.map (fun (i, j) -> grid.[i].[j])
 
 let evolveCell ((i, j) : int * int) (cell : CellState) (Grid grid) : CellState =

@@ -1,4 +1,4 @@
-module Console.Utils
+module Console
 
 open System
 open Domain

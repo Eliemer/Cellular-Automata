@@ -1,6 +1,6 @@
 ﻿open System
 
-open Console.Utils
+open Console
 open Microsoft.FSharp.Core.LanguagePrimitives
 open Domain
 

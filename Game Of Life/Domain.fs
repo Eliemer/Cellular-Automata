@@ -31,9 +31,14 @@ let getAdjacent ((i, j) : int * int) (Grid grid) =
     |> Seq.map (fun (i, j) -> (i % h), (j % w))
     |> Seq.map (fun (i, j) -> grid.[i].[j])
 
-let evolveCell ((i, j) : int * int) (Grid grid) : CellState =
-    let currentCell = grid.[i].[j]
-
+let evolveCell ((i, j) : int * int) (cell : CellState) (Grid grid) : CellState =
     getAdjacent (i, j) (Grid grid)
     |> Seq.sumBy<CellState, byte> byte
-    |> (evolutionRules currentCell)
+    |> (evolutionRules cell)
+
+let evolveGrid (Grid grid) : Grid =
+    grid
+    |> Array.mapi (fun i row ->
+        row
+        |> Array.mapi (fun j cell -> evolveCell (i, j) cell (Grid grid)))
+    |> Grid

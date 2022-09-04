@@ -11,16 +11,22 @@ let domainTests =
         [
             test "Sanity check" { Expect.equal true true "something is horribly wrong!" }
 
-            test "Alive Cells with 2 or 3 neighbours stays alive" {
-                let currentCell = CellState.Alive
-                let neighbours = 2uy
-                let next = Domain.evolutionRules currentCell neighbours
-                Expect.equal next CellState.Alive "Cell should remain alive"
+            testProperty "Individual Cell evolution"
+            <| fun (n : byte) ->
+                let wasAlive = Domain.evolutionRules CellState.Alive n
+                let wasDead = Domain.evolutionRules CellState.Alive n
 
-                let neighbours = 3uy
-                let next = Domain.evolutionRules currentCell neighbours
-                Expect.equal next CellState.Alive "Cell should remain alive"
-            }
+                match n with
+                | 2uy ->
+                    Expect.equal wasAlive CellState.Alive "Alive Cell with 2 neighbours should remain alive"
+                    Expect.equal wasDead CellState.Dead "Dead Cell with 2 neighbours stays dead"
+                | 3uy ->
+                    Expect.equal wasAlive CellState.Alive "Alive Cell with 3 neighbours should remain alive"
+                    Expect.equal wasDead CellState.Alive "Dead cell with 3 neighbours should live"
+                | _ ->
+                    Expect.equal wasAlive CellState.Dead "Alive Cell without 2 or 3 neighbours will die"
+                    Expect.equal wasDead CellState.Dead "Dead cell without 3 neighbours should remain dead"
+
         ]
 
 [<Tests>]

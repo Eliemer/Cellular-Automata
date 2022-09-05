@@ -22,8 +22,8 @@ let main argv =
             let width = arguments.GetResult(CliArguments.Width, defaultValue = 64)
 
             do Console.Clear()
-            Console.SetWindowSize(width, height)
-            Console.SetBufferSize(width, height)
+            Console.SetWindowSize(width + 10, height + 5)
+            Console.SetBufferSize(width + 10, height + 5)
 
             let mutable grid =
                 Array2D.init height width (fun _ _ ->
@@ -47,7 +47,6 @@ let main argv =
             let mutable stale = false
 
             while not stale do
-                // do Console.ClearConsole()
                 Console.Clear()
 
                 // evolve

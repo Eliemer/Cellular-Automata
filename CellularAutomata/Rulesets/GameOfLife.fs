@@ -2,7 +2,7 @@ module Ruleset.GameOfLife
 
 type CellState =
     | Dead = ' '
-    | Alive = '*'
+    | Alive = '█'
 
 let evolutionRules (cell : CellState) (neighbours : CellState seq) =
 

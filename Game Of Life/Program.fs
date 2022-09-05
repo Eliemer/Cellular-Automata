@@ -1,34 +1,79 @@
 ﻿open System
 
 open Console
-open Microsoft.FSharp.Core.LanguagePrimitives
 open Domain
+open Ruleset.GameOfLife
 
 let rand = System.Random()
 
 [<EntryPoint>]
 let main argv =
-    async {
-        let width, height = 32, 32
+    let arguments = cliParser.ParseCommandLine(raiseOnUsage = false)
+    Console.Title <- "Game of Life!"
 
-        let mutable grid =
-            [|
-                for w in 0..width do
-                    Array.init height (fun _ ->
-                        rand.Next() % 2
-                        |> Convert.ToByte
-                        |> EnumOfValue<byte, CellState>)
-            |]
-            |> Grid
+    let oldWindowSize = Console.WindowHeight, Console.WindowWidth
+    let oldBufferSize = Console.BufferHeight, Console.BufferWidth
 
-        while true do
-            Console.Clear()
-            printfn "%s" <| printGrid Console.printCell grid
+    if arguments.IsUsageRequested then
+        printfn "%s" <| cliParser.PrintUsage()
+    else
+        async {
+            let height = arguments.GetResult(CliArguments.Height, defaultValue = 32)
+            let width = arguments.GetResult(CliArguments.Width, defaultValue = 64)
 
-            grid <- evolveGrid grid
-            do! Async.Sleep 250
+            do Console.Clear()
+            Console.SetWindowSize(width, height)
+            Console.SetBufferSize(width, height)
 
-    }
-    |> Async.RunSynchronously
+            let mutable grid =
+                Array2D.init height width (fun _ _ ->
+                    match rand.Next() % 2 = 0 with
+                    | true -> CellState.Dead
+                    | false -> CellState.Alive)
+                |> Grid
+
+            // // Glider!!
+            // let mutable arr = Array2D.init height width (fun i j -> CellState.Dead)
+
+            // do arr.[0, 0] <- CellState.Alive
+            // do arr.[0, 2] <- CellState.Alive
+            // do arr.[1, 1] <- CellState.Alive
+            // do arr.[1, 2] <- CellState.Alive
+            // do arr.[2, 1] <- CellState.Alive
+
+            // let mutable grid = arr |> Grid
+
+            let mutable oldGridString = printGrid Console.printCell grid
+            let mutable stale = false
+
+            while not stale do
+                // do Console.ClearConsole()
+                Console.Clear()
+
+                // evolve
+                let newGrid = evolveGrid evolutionRules grid
+                assert (newGrid <> grid)
+
+                // print grid
+                let newGridString = printGrid Console.printCell newGrid
+                printfn "%s" newGridString
+
+                // check for 1-turn staleness
+                stale <- oldGridString = newGridString
+
+                // move new grid to old grid
+                grid <- newGrid
+                oldGridString <- newGridString
+
+                do! Async.Sleep 250
+
+            Console.SetWindowSize(oldWindowSize)
+            Console.SetBufferSize(oldBufferSize)
+            printfn "\nGame Over!\nThe grid has become completely stationary"
+            let _ = Console.ReadLine()
+
+            ()
+        }
+        |> Async.RunSynchronously
 
     0
